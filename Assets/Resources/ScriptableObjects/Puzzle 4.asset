@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccdf7571f2ea7cb4f9b7f67e5eb0f9e7, type: 3}
+  m_Name: Puzzle 4
+  m_EditorClassIdentifier: 
+  DrumImageSprite: {fileID: 21300000, guid: 5e59947805dabbd41a54d1350aa15e56, type: 3}
+  PuzzleImageSprites:
+  - {fileID: 21300000, guid: 74182d0f71b85c54d90f4c0e307c16b3, type: 3}
+  - {fileID: 21300000, guid: f72bb08839f9694418dbba77d3af0090, type: 3}
+  - {fileID: 21300000, guid: c80f379d6cdf9274180b5e3b9228d3c3, type: 3}
+  - {fileID: 21300000, guid: 966769876867af64f8a0db8cdf60e443, type: 3}
+  - {fileID: 21300000, guid: 64df35c18db88594ab5c18e0f378fec8, type: 3}
+  PuzzleCorrectWords:
+  - cat
+  - dog
+  - fly
+  WholePartsCount: 7
+  BadPoem: {fileID: 8300000, guid: 00d97b6fd0fb19848ab158991d44cb1c, type: 3}
