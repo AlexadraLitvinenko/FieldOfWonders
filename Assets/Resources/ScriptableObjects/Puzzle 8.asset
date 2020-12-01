@@ -21,5 +21,6 @@ MonoBehaviour:
   PuzzleCorrectWords:
   - fire
   - bone
+  - fly
   WholePartsCount: 5
   BadPoem: {fileID: 8300000, guid: 00d97b6fd0fb19848ab158991d44cb1c, type: 3}

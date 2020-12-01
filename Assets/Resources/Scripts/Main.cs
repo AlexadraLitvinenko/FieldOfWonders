@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class Main : MonoBehaviour
 {
@@ -12,12 +13,12 @@ public class Main : MonoBehaviour
     public Sprite SoundButtonSprite_ON;
     public Sprite SoundButtonSprite_OFF;
     public GameObject CopyrightPanel;
-    bool freeze = false;
+    public bool freeze;
     public Image BlurPanel;
     public GameObject PlayButton;
     public Transform Drum;
-    public GameObject DrumImagePrefab;
     public List<DIP> DrumImagePrefabs;
+    public List<Animator> StarPrefabs;
     bool[] UsedDrumImages;
     int startIndex;
     public PuzzleImagePanel Puzzle;
@@ -31,30 +32,36 @@ public class Main : MonoBehaviour
     public Part[] AllParts;
     public GameObject PartPrefab;
     public Transform PartsGrid;
-    public Transform PartsPool;
+    //public Transform PartsPool;
 
     public GameObject Dummy;
     public GameObject DummyDroped;
+    public GameObject Cup;
+
+    public GameObject RetryGamePanel;
 
     [Space]
     public AudioClip StartSpeech;
-    public AudioClip BadPoemDictorReaction_1;
-    public AudioClip BadPoemDictorReaction_2;
-    public AudioClip BadPoemDictorReaction_3;
+    //public AudioClip BadPoemDictorReaction_1;
+    //public AudioClip BadPoemDictorReaction_2;
+    //public AudioClip BadPoemDictorReaction_3;
     public AudioClip LetsTryPuzzleSpeech;
+    public AudioClip WrongPuzzlePart;
+    public AudioClip PuzzleIsDone;
+    public AudioClip GameIsFinished;
+
+    public AudioClip MusicTheme;
+    public AudioClip MusicVictory;
+
+    public Canvas canvas;
 
     void Start()
     {
         UsedDrumImages = new bool[8];
         DrumFormation(358f);
 
-        foreach (Part p in AllParts)
-        {
-            PartUI part = Instantiate(PartPrefab).GetComponent<PartUI>();
-            part.PartImage.sprite = p.PartSprite;
-            part.PartWord = p.PartWord;
-            part.transform.SetParent(PartsPool);
-        }
+        MusicSource.clip = MusicTheme;
+        MusicSource.Play();
     }
 
     void DrumFormation(float radius)
@@ -74,19 +81,27 @@ public class Main : MonoBehaviour
                 }
             }
 
+            Animator star = StarPrefabs[i];
+            star.gameObject.SetActive(false);
+
             DIP dip = DrumImagePrefabs[i];
             dip.DrumImage = dip.GetComponent<Image>();
             dip.DrumImage.sprite = PuzzleComponents[rnd].DrumImageSprite;
             dip.PuzzleComponents = PuzzleComponents[rnd];
+            dip.StarAnimator = star;
 
             float angle = -i * (2f * Mathf.PI / 8f);
             float x = Mathf.Cos(angle) * radius;
             float y = Mathf.Sin(angle) * radius;
 
             dip.transform.localPosition = new Vector3(x, y, 0);
+
+            x = Mathf.Cos(angle) * radius / 2.15f;
+            y = Mathf.Sin(angle) * radius / 2.15f;
+
+            star.transform.localPosition = new Vector3(x, y, 0);
         }
     }
-
 
     public void SoundSwitcher()
     {
@@ -124,34 +139,33 @@ public class Main : MonoBehaviour
 
     public void ExitApplication()
     {
-        Debug.Log("Exit");
         Application.OpenURL("/gameover.php");
-        Application.Quit();
     }
 
 
-    IEnumerator SpeechCreate(AudioClip clip)
+    IEnumerator PlayStartSpeech()
     {
-        SpeechSource.clip = clip;
+        SpeechSource.clip = StartSpeech;
         SpeechSource.Play();
 
-        freeze = true;
-        yield return new WaitForSecondsRealtime(clip.length);
+        yield return new WaitForSecondsRealtime(StartSpeech.length + 0.5f);
+
         freeze = false;
     }
 
     public void BeginGame()
     {
-        BlurPanel.gameObject.SetActive(false);
+        BlurPanel.enabled = false;
         PlayButton.SetActive(false);
         ChildAnimator.SetTrigger("ChildAnimate");
 
-        StartCoroutine(SpeechCreate(StartSpeech));
+        freeze = true;
+        StartCoroutine(PlayStartSpeech());
     }
 
     public void RotateDrum()
     {
-        if (!freeze)
+        if (freeze == false)
         {
             int rnd;
             if (UsedDrumImages.All(x => x))
@@ -189,6 +203,10 @@ public class Main : MonoBehaviour
             {
                 dip.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
             }
+            foreach (Animator star in StarPrefabs)
+            {
+                star.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
+            }
 
             if (sum % 360 == 0)
             {
@@ -213,10 +231,13 @@ public class Main : MonoBehaviour
             {
                 dip.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
             }
+            foreach (Animator star in StarPrefabs)
+            {
+                star.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
+            }
 
             if (sum >= 0)
             {
-                DrumImagePrefabs[nextIndex].DrumImage.color = Color.green;
                 startIndex = nextIndex;
                 UsedDrumImages[nextIndex] = true;
 
@@ -248,8 +269,11 @@ public class Main : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
 
-        Dummy.SetActive(false);
-        DummyDroped.SetActive(true);
+        if (Dummy.activeSelf)
+        {
+            Dummy.SetActive(false);
+            DummyDroped.SetActive(true);
+        }
 
         StartCoroutine(BeforePuzzleDialog());
     }
@@ -258,12 +282,10 @@ public class Main : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         SpeechSource.PlayOneShot(Puzzle.PuzzleComponents.BadPoem);
-        yield return new WaitForSecondsRealtime(Puzzle.PuzzleComponents.BadPoem.length);
-        //yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(Puzzle.PuzzleComponents.BadPoem.length + 1f);
         SpeechSource.PlayOneShot(LetsTryPuzzleSpeech);
-        yield return new WaitForSecondsRealtime(LetsTryPuzzleSpeech.length);
-        //yield return new WaitForSeconds(1f);
 
+        // Добавляем в стэк части с правильными словами
         for (int i = 0; i < Puzzle.PuzzleComponents.PuzzleCorrectWords.Length; i++)
         {
             string curword = Puzzle.PuzzleComponents.PuzzleCorrectWords[i];
@@ -271,40 +293,104 @@ public class Main : MonoBehaviour
             {
                 if (AllParts[j].PartWord == curword)
                 {
-                    PartUI part = Instantiate(PartPrefab).GetComponent<PartUI>();
+                    PartImagePanel part = Instantiate(PartPrefab).GetComponent<PartImagePanel>();
                     part.PartImage.sprite = AllParts[j].PartSprite;
                     part.PartWord = AllParts[j].PartWord;
                     part.transform.SetParent(PartsGrid);
+                    part.transform.localScale = Vector3.one;
+                    part.MainScript = this;
                     break;
                 }
             }
         }
-        //int index = 0;
-        //string word = "";
-        for (int i = 0; i < Puzzle.PuzzleComponents.WholePartsCount - Puzzle.PuzzleComponents.PuzzleCorrectWords.Length; i++)
+
+        // Добавляем в стэк части с неправильными словами
+        int UncorrectWordsCount = Puzzle.PuzzleComponents.WholePartsCount - Puzzle.PuzzleComponents.PuzzleCorrectWords.Length;
+        int[] usedIndexes = new int[UncorrectWordsCount];
+        for (int i = 0; i < usedIndexes.Length; i++) usedIndexes[i] = -1;
+        for (int i = 0; i < UncorrectWordsCount; i++)
         {
             while (true)
             {
                 int rnd = Random.Range(0, AllParts.Length);
-
-                if (!Puzzle.PuzzleComponents.PuzzleCorrectWords.Contains(AllParts[rnd].PartWord))
+                if (!usedIndexes.Contains(rnd))
                 {
-                    PartUI part = Instantiate(PartPrefab).GetComponent<PartUI>();
-                    part.PartImage.sprite = AllParts[rnd].PartSprite;
-                    part.PartWord = AllParts[rnd].PartWord;
-                    part.transform.SetParent(PartsGrid);
-                    break;
+                    if (!Puzzle.PuzzleComponents.PuzzleCorrectWords.Contains(AllParts[rnd].PartWord))
+                    {
+                        PartImagePanel part = Instantiate(PartPrefab).GetComponent<PartImagePanel>();
+                        part.PartImage.sprite = AllParts[rnd].PartSprite;
+                        part.PartWord = AllParts[rnd].PartWord;
+                        part.transform.SetParent(PartsGrid);
+                        part.transform.localScale = Vector3.one;
+                        part.MainScript = this;
+
+                        usedIndexes[i] = rnd;
+                        break;
+                    }
                 }
             }
         }
+
+        // Перемешиваем дочерние объекты стэка
+        for (int i = 0; i < 30; i++)
+        {
+            int rndIndex = Random.Range(0, PartsGrid.childCount);
+            PartsGrid.GetChild(rndIndex).SetAsFirstSibling();
+        }
+
+        yield return new WaitForSeconds(5f);
+        // Выплывает стэк на экран
         PartsGridAnimator.SetTrigger("UP");
+
+        yield return new WaitForSeconds(LetsTryPuzzleSpeech.length - 5f);
     }
 
 
-
-    // Update is called once per frame
-    void Update()
+    public IEnumerator PuzzleIsCompleted()
     {
+        yield return new WaitForSeconds(1f);
 
+        foreach (PartImagePanel part in PartsGrid.GetComponentsInChildren<PartImagePanel>())
+        {
+            Destroy(part.gameObject);
+        }
+        
+        Puzzle.PuzzleIsDone = false;
+        Puzzle.SpriteIndex = 0;
+
+        DrumImagePrefabs[startIndex].DrumImage.color = Color.green;
+        DrumImagePrefabs[startIndex].StarAnimator.gameObject.SetActive(true);
+        DrumImagePrefabs[startIndex].StarAnimator.SetTrigger("STAR");
+
+        bool VICTORY = true;
+        foreach (Animator star in StarPrefabs)
+        {
+            if (!star.gameObject.activeSelf)
+            {
+                VICTORY = false;
+                break;
+            }
+        }
+
+        if (VICTORY)
+        {
+            MusicSource.clip = MusicTheme;
+            MusicSource.Play();
+
+            DrumAnimator.SetTrigger("VICTORY");
+            SpeechSource.PlayOneShot(GameIsFinished);
+            yield return new WaitForSeconds(GameIsFinished.length);
+            DrumAnimator.SetInteger("DrumScale", 0);
+            yield return new WaitForSeconds(1f);
+            Cup.SetActive(true);
+            yield return new WaitForSeconds(2f);
+            RetryGamePanel.SetActive(true);
+        }
+        freeze = false;
+    }
+
+    public void RetryGame()
+    {
+        SceneManager.LoadScene(0);
     }
 }

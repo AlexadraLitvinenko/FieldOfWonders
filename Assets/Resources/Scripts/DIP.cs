@@ -7,4 +7,5 @@ public class DIP : MonoBehaviour
 {
     public Image DrumImage;
     public PuzzleParts PuzzleComponents;
+    public Animator StarAnimator;
 }

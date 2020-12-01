@@ -23,5 +23,6 @@ MonoBehaviour:
   - cat
   - dog
   - fly
+  - ice
   WholePartsCount: 7
   BadPoem: {fileID: 8300000, guid: 00d97b6fd0fb19848ab158991d44cb1c, type: 3}
