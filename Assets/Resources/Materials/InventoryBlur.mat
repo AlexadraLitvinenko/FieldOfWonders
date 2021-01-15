@@ -92,7 +92,7 @@ Material:
     - _Parallax: 0.02
     - _Radius: 15
     - _Shininess: 0.2
-    - _Size: 8
+    - _Size: 15
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

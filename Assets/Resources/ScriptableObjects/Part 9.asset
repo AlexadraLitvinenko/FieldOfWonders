@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Part 9
   m_EditorClassIdentifier: 
   PartSprite: {fileID: 21300000, guid: 670cc4a9ba1d42c4db6fb9c87751ced8, type: 3}
-  PartWord: fly
+  PartWord: "\u044F\u0431\u043B\u043E\u043A\u043E"

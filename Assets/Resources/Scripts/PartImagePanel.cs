@@ -27,6 +27,8 @@ public class PartImagePanel : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         if (MainScript.Puzzle.PuzzleIsDone) return;
         transform.SetParent(MainScript.PartsGridAnimator.transform);
 
+        MainScript.SpeechSource.PlayOneShot(MainScript.AnyButtonSound[Random.Range(0, MainScript.AnyButtonSound.Length)]);
+
         canvasgroup.blocksRaycasts = false;
     }
 

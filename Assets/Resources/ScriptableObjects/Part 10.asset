@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Part 10
   m_EditorClassIdentifier: 
   PartSprite: {fileID: 21300000, guid: ba7edb20d1f8e594ba0f2bd5d20620d6, type: 3}
-  PartWord: step
+  PartWord: "\u043B\u043E\u043F\u0430\u0442\u0430"

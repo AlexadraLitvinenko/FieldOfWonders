@@ -26,12 +26,17 @@ public class PuzzleImagePanel : MonoBehaviour, IDropHandler, IPointerClickHandle
             PuzzleImage.sprite = PuzzleComponents.PuzzleImageSprites[SpriteIndex];
             Destroy(PIP.gameObject);
 
+            main.SpeechSource.Stop();
+
+            AudioClip correctPuzzlePart = main.CorrectPuzzlePart[Random.Range(0, main.CorrectPuzzlePart.Length)];
+            main.SpeechSource.PlayOneShot(correctPuzzlePart);
+
             if (SpriteIndex == PuzzleComponents.PuzzleCorrectWords.Length)
             {
                 PuzzleIsDone = true;
 
-                main.SpeechSource.clip = main.PuzzleIsDone;
-                main.SpeechSource.Play();
+                AudioClip puzzleIsDone = main.PuzzleIsDone[Random.Range(0, main.PuzzleIsDone.Length)];
+                main.SpeechSource.PlayOneShot(puzzleIsDone);
 
                 main.PuzzleAnimator.SetTrigger("DONE");
 
@@ -42,7 +47,8 @@ public class PuzzleImagePanel : MonoBehaviour, IDropHandler, IPointerClickHandle
         else
         {
             PIP.transform.SetParent(main.PartsGrid);
-            main.SpeechSource.clip = main.WrongPuzzlePart;
+            AudioClip wrongPuzzlePart = main.WrongPuzzlePart[Random.Range(0, main.WrongPuzzlePart.Length)];
+            main.SpeechSource.clip = wrongPuzzlePart;
             main.SpeechSource.Play();
         }
     }

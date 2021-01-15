@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Part 11
   m_EditorClassIdentifier: 
   PartSprite: {fileID: 21300000, guid: 7aad7ee680f8244408a4f283ba1aa029, type: 3}
-  PartWord: phone
+  PartWord: "\u043D\u043E\u0441"

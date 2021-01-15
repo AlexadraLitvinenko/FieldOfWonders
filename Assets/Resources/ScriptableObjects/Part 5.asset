@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Part 5
   m_EditorClassIdentifier: 
   PartSprite: {fileID: 21300000, guid: 1c124dbd4640eab4eaadaa381f671913, type: 3}
-  PartWord: ulitka
+  PartWord: "\u043B\u0430\u043C\u0430"

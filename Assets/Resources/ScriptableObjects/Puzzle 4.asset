@@ -20,9 +20,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 966769876867af64f8a0db8cdf60e443, type: 3}
   - {fileID: 21300000, guid: 64df35c18db88594ab5c18e0f378fec8, type: 3}
   PuzzleCorrectWords:
-  - cat
-  - dog
-  - fly
-  - ice
+  - "\u0434\u0435\u0432\u043E\u0447\u043A\u0430"
+  - "\u043A\u0443\u043A\u043B\u0430"
+  - "\u043C\u044B\u043B\u043E"
+  - "\u043F\u043B\u0430\u0442\u043E\u043A"
   WholePartsCount: 7
-  BadPoem: {fileID: 8300000, guid: 00d97b6fd0fb19848ab158991d44cb1c, type: 3}
+  BadPoem: {fileID: 8300000, guid: 340c7f056bbde274eb80e76e37bc10eb, type: 3}

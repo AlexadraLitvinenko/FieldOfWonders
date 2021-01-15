@@ -41,14 +41,15 @@ public class Main : MonoBehaviour
     public GameObject RetryGamePanel;
 
     [Space]
-    public AudioClip StartSpeech;
-    //public AudioClip BadPoemDictorReaction_1;
-    //public AudioClip BadPoemDictorReaction_2;
-    //public AudioClip BadPoemDictorReaction_3;
-    public AudioClip LetsTryPuzzleSpeech;
-    public AudioClip WrongPuzzlePart;
-    public AudioClip PuzzleIsDone;
-    public AudioClip GameIsFinished;
+    public AudioClip[] StartSpeech;
+    public AudioClip[] LetsTryPuzzleSpeech;
+    public AudioClip[] CorrectPuzzlePart;
+    public AudioClip[] WrongPuzzlePart;
+    public AudioClip[] PuzzleIsDone;
+    public AudioClip[] GameIsFinished;
+    public AudioClip DrumStartRotating;
+    public AudioClip[] AnyButtonSound;
+    public AudioClip PuzzleShowSound;
 
     public AudioClip MusicTheme;
     public AudioClip MusicVictory;
@@ -58,7 +59,7 @@ public class Main : MonoBehaviour
     void Start()
     {
         UsedDrumImages = new bool[8];
-        DrumFormation(358f);
+        DrumFormation(300f);
 
         MusicSource.clip = MusicTheme;
         MusicSource.Play();
@@ -105,10 +106,12 @@ public class Main : MonoBehaviour
 
     public void SoundSwitcher()
     {
+        SpeechSource.PlayOneShot(AnyButtonSound[Random.Range(0,AnyButtonSound.Length)]);
+
         if (MusicSource.volume == 0)
         {
             SoundButtonImage.sprite = SoundButtonSprite_OFF;
-            MusicSource.volume = 0.3f;
+            MusicSource.volume = 0.2f;
             SpeechSource.volume = 1;
         }
         else
@@ -121,6 +124,8 @@ public class Main : MonoBehaviour
 
     public void Copyright()
     {
+        SpeechSource.PlayOneShot(AnyButtonSound[Random.Range(0,AnyButtonSound.Length)]);
+
         if (CopyrightPanel.activeSelf)
         {
             CopyrightPanel.SetActive(false);
@@ -133,28 +138,34 @@ public class Main : MonoBehaviour
 
     public void GoToFullScreen()
     {
-        Debug.Log(Screen.fullScreen);
+        SpeechSource.PlayOneShot(AnyButtonSound[Random.Range(0,AnyButtonSound.Length)]);
+
         Screen.fullScreen = !Screen.fullScreen;
     }
 
     public void ExitApplication()
     {
+        SpeechSource.PlayOneShot(AnyButtonSound[Random.Range(0,AnyButtonSound.Length)]);
+
         Application.OpenURL("/gameover.php");
     }
 
 
     IEnumerator PlayStartSpeech()
     {
-        SpeechSource.clip = StartSpeech;
+        AudioClip startSpeech = StartSpeech[Random.Range(0, StartSpeech.Length)];
+        SpeechSource.clip = startSpeech;
         SpeechSource.Play();
 
-        yield return new WaitForSecondsRealtime(StartSpeech.length + 0.5f);
+        yield return new WaitForSecondsRealtime(startSpeech.length + 0.5f);
 
         freeze = false;
     }
 
     public void BeginGame()
     {
+        SpeechSource.PlayOneShot(AnyButtonSound[Random.Range(0,AnyButtonSound.Length)]);
+
         BlurPanel.enabled = false;
         PlayButton.SetActive(false);
         ChildAnimator.SetTrigger("ChildAnimate");
@@ -174,9 +185,50 @@ public class Main : MonoBehaviour
                 return;
             }
 
+            SpeechSource.PlayOneShot(DrumStartRotating);
+
+            int counter = 0;
             while (true)
             {
                 rnd = Random.Range(0, 8);
+                counter++;
+
+                if (counter < 50)
+                {
+                    if (startIndex == 0) rnd = Random.Range(1, 4);
+                    else if (startIndex == 1)
+                    {
+                        rnd = Random.Range(2, 5);
+                    }
+                    else if (startIndex == 2)
+                    {
+                        rnd = Random.Range(3, 6);
+                    }
+                    else if (startIndex == 3)
+                    {
+                        rnd = Random.Range(4, 7);
+                    }
+                    else if (startIndex == 4)
+                    {
+                        rnd = Random.Range(5, 8);
+                    }
+                    else if (startIndex == 5)
+                    {
+                        rnd = Random.Range(6, 9);
+                        if (rnd == 8) rnd = 0;
+                    }
+                    else if (startIndex == 6)
+                    {
+                        rnd = Random.Range(7, 10);
+                        if (rnd == 8) rnd = 0;
+                        else if (rnd == 9) rnd = 1;
+                    }
+                    else if (startIndex == 7)
+                    {
+                        rnd = Random.Range(0, 3);
+                    }
+                }
+
                 if (UsedDrumImages[rnd] == false)
                 {
                     break;
@@ -193,32 +245,32 @@ public class Main : MonoBehaviour
         float startRotation = Drum.rotation.eulerAngles.z;
         int step = 1;
         int sum = 0;
-        int currentCircleCount = 0;
 
-        while (true)
-        {
-            Drum.Rotate(0, 0, -step);
-            sum += step;
-            foreach (DIP dip in DrumImagePrefabs)
-            {
-                dip.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
-            }
-            foreach (Animator star in StarPrefabs)
-            {
-                star.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
-            }
+        //int currentCircleCount = 0;
+        //while (true)
+        //{
+        //    Drum.Rotate(0, 0, -step);
+        //    sum += step;
+        //    foreach (DIP dip in DrumImagePrefabs)
+        //    {
+        //        dip.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
+        //    }
+        //    foreach (Animator star in StarPrefabs)
+        //    {
+        //        star.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, -Drum.rotation.eulerAngles.z));
+        //    }
 
-            if (sum % 360 == 0)
-            {
-                currentCircleCount++;
-                if (currentCircleCount == 1)
-                {
-                    Drum.rotation = Quaternion.Euler(new Vector3(0, 0, Mathf.RoundToInt(startRotation)));
-                    break;
-                }
-            }
-            yield return new WaitForSeconds(0.01f);
-        }
+        //    if (sum % 360 == 0)
+        //    {
+        //        currentCircleCount++;
+        //        if (currentCircleCount == 1)
+        //        {
+        //            Drum.rotation = Quaternion.Euler(new Vector3(0, 0, Mathf.RoundToInt(startRotation)));
+        //            break;
+        //        }
+        //    }
+        //    yield return new WaitForSeconds(0.01f);
+        //}
 
         if (nextIndex - startIndex > 0) sum = -(360 - (nextIndex - startIndex) * 45);
         else sum = (nextIndex - startIndex) * 45;
@@ -248,7 +300,7 @@ public class Main : MonoBehaviour
             yield return new WaitForSeconds(0.01f);
         }
 
-        StartCoroutine(PuzzleShow());
+        StartCoroutine(PuzzleShow());        
     }
 
     IEnumerator PuzzleShow()
@@ -258,7 +310,7 @@ public class Main : MonoBehaviour
 
         DrumAnimator.SetInteger("DrumScale", 0);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.5f);        
 
         PuzzleAnimator.SetInteger("PuzzleScale", 1);
 
@@ -267,7 +319,11 @@ public class Main : MonoBehaviour
 
     IEnumerator DummyDrop()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
+
+        SpeechSource.PlayOneShot(PuzzleShowSound);
+
+        yield return new WaitForSeconds(1f);
 
         if (Dummy.activeSelf)
         {
@@ -283,7 +339,9 @@ public class Main : MonoBehaviour
         yield return new WaitForSeconds(1f);
         SpeechSource.PlayOneShot(Puzzle.PuzzleComponents.BadPoem);
         yield return new WaitForSeconds(Puzzle.PuzzleComponents.BadPoem.length + 1f);
-        SpeechSource.PlayOneShot(LetsTryPuzzleSpeech);
+
+        AudioClip letsTryPuzzleSpeech = LetsTryPuzzleSpeech[Random.Range(0, LetsTryPuzzleSpeech.Length)];
+        SpeechSource.PlayOneShot(letsTryPuzzleSpeech);
 
         // Добавляем в стэк части с правильными словами
         for (int i = 0; i < Puzzle.PuzzleComponents.PuzzleCorrectWords.Length; i++)
@@ -342,7 +400,7 @@ public class Main : MonoBehaviour
         // Выплывает стэк на экран
         PartsGridAnimator.SetTrigger("UP");
 
-        yield return new WaitForSeconds(LetsTryPuzzleSpeech.length - 5f);
+        yield return new WaitForSeconds(letsTryPuzzleSpeech.length - 5f);
     }
 
 
@@ -354,13 +412,18 @@ public class Main : MonoBehaviour
         {
             Destroy(part.gameObject);
         }
-        
+
         Puzzle.PuzzleIsDone = false;
         Puzzle.SpriteIndex = 0;
 
-        DrumImagePrefabs[startIndex].DrumImage.color = Color.green;
+        //DrumImagePrefabs[startIndex].DrumImage.color = Color.green;
         DrumImagePrefabs[startIndex].StarAnimator.gameObject.SetActive(true);
         DrumImagePrefabs[startIndex].StarAnimator.SetTrigger("STAR");
+
+        yield return new WaitForSeconds(1f);
+
+        AudioClip correctPuzzlePart = CorrectPuzzlePart[Random.Range(0, CorrectPuzzlePart.Length)];
+        SpeechSource.PlayOneShot(correctPuzzlePart);
 
         bool VICTORY = true;
         foreach (Animator star in StarPrefabs)
@@ -378,8 +441,9 @@ public class Main : MonoBehaviour
             MusicSource.Play();
 
             DrumAnimator.SetTrigger("VICTORY");
-            SpeechSource.PlayOneShot(GameIsFinished);
-            yield return new WaitForSeconds(GameIsFinished.length);
+            AudioClip gameIsFinished = GameIsFinished[Random.Range(0, GameIsFinished.Length)];
+            SpeechSource.PlayOneShot(gameIsFinished);
+            yield return new WaitForSeconds(gameIsFinished.length);
             DrumAnimator.SetInteger("DrumScale", 0);
             yield return new WaitForSeconds(1f);
             Cup.SetActive(true);

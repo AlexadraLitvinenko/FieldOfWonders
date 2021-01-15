@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Part 3
   m_EditorClassIdentifier: 
   PartSprite: {fileID: 21300000, guid: 64b11bda2e5f2624e83e04233292ac3f, type: 3}
-  PartWord: cat
+  PartWord: "\u0431\u0435\u043B\u043A\u0430"
